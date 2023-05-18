@@ -112,8 +112,10 @@
               }
               popupDiv.style.display = "none";
             };
-            // Assign empty actions to Button 3
+            // Assign an action to Button 3 (Search in Cambridge Dictionary)
             popupButtons[2].onclick = function() {
+              const searchUrl = "https://dictionary.cambridge.org/search/english/direct/?q=" + encodeURIComponent(selectedText);
+              window.open(searchUrl, "_blank");
               popupDiv.style.display = "none";
             };
           } else {
