@@ -39,7 +39,7 @@
     document.addEventListener("DOMContentLoaded", function() {
       const responseDiv = document.getElementById("response");
       const popupDiv = document.getElementById("popup");
-      const paragraphContent = document.getElementById("paragraph-content");
+      const paragraphContent = document.getElementById("my-text");
       let cursorTouchedMarkedText = false;
       let timeoutId;
 
@@ -53,7 +53,7 @@
           popupDiv.style.top = `${event.pageY}px`;
 
           // Show the popup
-          popupDiv.style.display = "block";
+          popupDiv.style.display = "flex";
 
           // Assign an action to Button 1 (Find and Mark)
           popupButtons[0].onclick = function() {
@@ -169,7 +169,7 @@
 
   <div id="paragraph">
     <h2>Paragraph Div</h2>
-    <p id="paragraph-content" contenteditable>This is the paragraph div. You can add your content here.</p>
+    <p id="my-text" contenteditable>This is the paragraph div. You can add your content here.</p>
   </div>
 
   <div id="popup">
