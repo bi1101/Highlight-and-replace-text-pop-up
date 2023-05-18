@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Website</title>
+  <style>
+    #response {
+      background-color: lightblue;
+      padding: 10px;
+    }
+
+    #paragraph {
+      background-color: lightgray;
+      padding: 10px;
+    }
+
+    #popup {
+      display: none;
+      position: absolute;
+      background-color: white;
+      border: 1px solid gray;
+      padding: 10px;
+    }
+
+    #popup button {
+      margin-right: 5px;
+    }
+
+    mark {
+      background-color: #f9dce1;
+      font-weight: bold;
+      transition: opacity 0.5s;
+    }
+
+    .fade {
+      opacity: 0;
+    }
+  </style>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const responseDiv = document.getElementById("response");
+      const popupDiv = document.getElementById("popup");
+      const paragraphContent = document.getElementById("paragraph-content");
+
+      responseDiv.addEventListener("mouseup", function(event) {
+        const selectedText = window.getSelection().toString().trim();
+        const popupButtons = popupDiv.getElementsByTagName("button");
+
+        if (selectedText && selectedText !== "") {
+          // Position the popup near the mouse cursor
+          popupDiv.style.left = `${event.pageX}px`;
+          popupDiv.style.top = `${event.pageY}px`;
+
+          // Show the popup
+          popupDiv.style.display = "block";
+
+          // Assign an action to Button 1 (Find and Mark)
+          popupButtons[0].onclick = function() {
+            const textToSearch = selectedText.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+            const pattern = new RegExp(`${textToSearch}`,"gi");
+            const matches = paragraphContent.textContent.match(pattern);
+            const existingMarks = paragraphContent.querySelectorAll("mark");
+
+            // Remove existing marks and restore their original content
+            for (let i = 0; i < existingMarks.length; i++) {
+              const markText = existingMarks[i].textContent;
+              existingMarks[i].outerHTML = markText;
+            }
+
+            paragraphContent.innerHTML = paragraphContent.innerHTML.replace(pattern, match => `<mark>${match}</mark>`);
+
+            if (matches) {
+              const markElements = paragraphContent.getElementsByTagName("mark");
+              for (let i = 0; i < markElements.length; i++) {
+                const markElement = markElements[i];
+                markElement.addEventListener("mouseenter", function() {
+                  const thisMarkElement = this;
+                  thisMarkElement.classList.add("fade");
+                  thisMarkElement.addEventListener("transitionend", function() {
+                    thisMarkElement.outerHTML = thisMarkElement.textContent;
+                  }, { once: true });
+                });
+              }
+            }
+
+            popupDiv.style.display = "none";
+          };
+
+          // Assign an action to Button 2 (Replace Marked Text)
+          popupButtons[1].onclick = function() {
+            const markElements = paragraphContent.getElementsByTagName("mark");
+            for (let i = 0; i < markElements.length; i++) {
+              const selectedText = window.getSelection().toString().trim();
+              markElements[i].outerHTML = `<b>${selectedText}</b>`;
+            }
+            popupDiv.style.display = "none";
+          };
+
+          // Assign empty actions to Button 3
+          popupButtons[2].onclick = function() {
+            popupDiv.style.display = "none";
+          };
+        } else {
+          // Hide the popup if no text is selected
+          popupDiv.style.display = "none";
+        }
+      });
+
+      // Handle dynamic content changes in the paragraph
+      paragraphContent.addEventListener("input", function() {
+        const markElements = paragraphContent.getElementsByTagName("mark");
+        for (let i = 0; i < markElements.length; i++) {
+          const markElement = markElements[i];
+          markElement.addEventListener("mouseenter", function() {
+            const thisMarkElement = this;
+            thisMarkElement.classList.add("fade");
+            thisMarkElement.addEventListener("transitionend", function() {
+              thisMarkElement.outerHTML = thisMarkElement.textContent;
+            }, { once: true });
+          });
+        }
+      });
+    });
+  </script>
+</head>
+<body>
+  <div id="response">
+    <h2>Response Div</h2>
+    <p>This is the response div. You can add your content here.</p>
+  </div>
+
+  <div id="paragraph">
+    <h2>Paragraph Div</h2>
+    <p id="paragraph-content" contenteditable>This is the paragraph div. You can add your content here.</p>
+  </div>
+
+  <div id="popup">
+    <button id="find-and-mark">Find and Mark</button>
+    <button id="replace-marked-text">Replace Marked Text</button>
+    <button>Button 3</button>
+  </div>
+</body>
+</html>
