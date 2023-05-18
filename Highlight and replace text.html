@@ -26,7 +26,7 @@
     }
 
     mark {
-      background-color: #f9dce1;
+      background-color: yellow;
       font-weight: bold;
       transition: opacity 0.5s;
     }
@@ -40,6 +40,8 @@
       const responseDiv = document.getElementById("response");
       const popupDiv = document.getElementById("popup");
       const paragraphContent = document.getElementById("paragraph-content");
+      let cursorTouchedMarkedText = false;
+      let timeoutId;
 
       responseDiv.addEventListener("mouseup", function(event) {
         const selectedText = window.getSelection().toString().trim();
@@ -73,13 +75,28 @@
               for (let i = 0; i < markElements.length; i++) {
                 const markElement = markElements[i];
                 markElement.addEventListener("mouseenter", function() {
-                  const thisMarkElement = this;
-                  thisMarkElement.classList.add("fade");
-                  thisMarkElement.addEventListener("transitionend", function() {
-                    thisMarkElement.outerHTML = thisMarkElement.textContent;
-                  }, { once: true });
+                  if (!cursorTouchedMarkedText) {
+                    const thisMarkElement = this;
+                    thisMarkElement.classList.add("fade");
+                    thisMarkElement.addEventListener("transitionend", function() {
+                      thisMarkElement.outerHTML = thisMarkElement.textContent;
+                    }, { once: true });
+                  }
                 });
               }
+
+              clearTimeout(timeoutId); // Clear previous timeout
+              timeoutId = setTimeout(function() {
+                for (let i = 0; i < markElements.length; i++) {
+                  const markElement = markElements[i];
+                  if (!cursorTouchedMarkedText) {
+                    markElement.classList.add("fade");
+                    markElement.addEventListener("transitionend", function() {
+                      markElement.outerHTML = markElement.textContent;
+                    }, { once: true });
+                  }
+                }
+              }, 10000); // Wait for 10 seconds before fading out
             }
 
             popupDiv.style.display = "none";
@@ -105,17 +122,39 @@
         }
       });
 
+      // Handle text insertion cursor touching the marked text
+      paragraphContent.addEventListener("mouseenter", function(event) {
+        const markElement = event.target.closest("mark");
+        if (markElement) {
+          markElement.classList.add("fade");
+          markElement.addEventListener("transitionend", function() {
+            markElement.outerHTML = markElement.textContent;
+          }, { once: true });
+          cursorTouchedMarkedText = true;
+        }
+      });
+
+      // Handle text insertion cursor leaving the marked text
+      paragraphContent.addEventListener("mouseleave", function(event) {
+        const markElement = event.target.closest("mark");
+        if (markElement) {
+          cursorTouchedMarkedText = false;
+        }
+      });
+
       // Handle dynamic content changes in the paragraph
       paragraphContent.addEventListener("input", function() {
         const markElements = paragraphContent.getElementsByTagName("mark");
         for (let i = 0; i < markElements.length; i++) {
           const markElement = markElements[i];
           markElement.addEventListener("mouseenter", function() {
-            const thisMarkElement = this;
-            thisMarkElement.classList.add("fade");
-            thisMarkElement.addEventListener("transitionend", function() {
-              thisMarkElement.outerHTML = thisMarkElement.textContent;
-            }, { once: true });
+            if (!cursorTouchedMarkedText) {
+              const thisMarkElement = this;
+              thisMarkElement.classList.add("fade");
+              thisMarkElement.addEventListener("transitionend", function() {
+                thisMarkElement.outerHTML = thisMarkElement.textContent;
+              }, { once: true });
+            }
           });
         }
       });
